@@ -4,12 +4,9 @@ const auth = require("../middlewares/auth");
 
 const userController = require("../controllers/userController");
 
-router.post("/register", userController.register);
-router.post("/login", userController.login);
-router.post("/refresh-token", userController.generateAccessToken);
-router.get("/logout", userController.logout);
-router.post("/forgot-password", userController.forgotPassword);
-router.post("/reset-password", auth, userController.resetPassword);
-router.post("/check-old-password", userController.checkPassword);
+router.get("/search", auth, userController.search);
+router.get("/user-info/:username", userController.getUser);
+router.put("/user/follow", auth, userController.followUser);
+router.put("/user/unfollow", auth, userController.unfollowUser);
 
 module.exports = router;
