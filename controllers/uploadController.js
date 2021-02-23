@@ -62,6 +62,32 @@ const uploadController = {
       return res.status(500).json({ msg: err.message });
     }
   },
+  uploadImages: async (req, res) => {
+    try {
+      let { image } = req.body;
+      const result = await cloudinary.uploader.upload(image, {
+        public_id: `${Date.now()}`,
+        resource_type: "auto",
+      });
+
+      res.json({
+        public_id: result.public_id,
+        url: result.secure_url,
+      });
+    } catch (err) {
+      return res.status(500).json({ msg: err.message });
+    }
+  },
+  removeImages: async (req, res) => {
+    try {
+      let image_id = req.body.public_id;
+      await cloudinary.uploader.destroy(image_id);
+
+      res.send("ok");
+    } catch (err) {
+      return res.status(500).json({ msg: err.message });
+    }
+  },
 };
 
 module.exports = uploadController;
