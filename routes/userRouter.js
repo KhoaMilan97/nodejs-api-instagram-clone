@@ -8,5 +8,6 @@ router.get("/search", auth, userController.search);
 router.get("/user-info/:username", userController.getUser);
 router.put("/user/follow", auth, userController.followUser);
 router.put("/user/unfollow", auth, userController.unfollowUser);
+router.patch("/update-user/:id", auth, userController.updateUser);
 
 module.exports = router;

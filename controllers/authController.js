@@ -170,12 +170,6 @@ const authController = {
       return res.status(500).json({ msg: err.message });
     }
   },
-  updateUser: async (req, res) => {
-    try {
-    } catch (err) {
-      return res.status(500).json({ msg: err.message });
-    }
-  },
 };
 
 function validateEmail(email) {

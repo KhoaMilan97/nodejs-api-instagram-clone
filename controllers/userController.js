@@ -1,4 +1,3 @@
-const { Mongoose } = require("mongoose");
 const Users = require("../models/userModel");
 
 const userController = {
@@ -23,6 +22,55 @@ const userController = {
       const users = await Users.findOne({ username }).select("-password");
 
       res.json(users);
+    } catch (err) {
+      return res.status(500).json({ msg: err.message });
+    }
+  },
+  updateUser: async (req, res) => {
+    try {
+      const { id } = req.params;
+      const {
+        username,
+        fullname,
+        website,
+        description,
+        phone,
+        gender,
+      } = req.body;
+
+      if (!username)
+        return res.status(400).json({ msg: "You need provide username." });
+
+      let newUsername = username.toLowerCase().replace(/\s/g, "");
+
+      const oldUser = await Users.findById(id);
+      if (oldUser.username !== newUsername) {
+        const checkUsername = await Users.findOne({ username: newUsername });
+        if (checkUsername)
+          return res.status(400).json({ msg: "This username already exists." });
+      }
+
+      if (!validatePhone(phone))
+        return res.status(400).json({ msg: "Phone number incorrect format." });
+      if (!validURL(website))
+        return res
+          .status(400)
+          .json({ msg: "Website url must be a valid URL." });
+
+      const user = await Users.findByIdAndUpdate(
+        id,
+        {
+          username: newUsername,
+          fullname,
+          website,
+          description,
+          phoneNumber: phone,
+          gender,
+        },
+        { new: true }
+      );
+
+      res.json(user);
     } catch (err) {
       return res.status(500).json({ msg: err.message });
     }
@@ -112,5 +160,23 @@ const userController = {
     }
   },
 };
+
+function validatePhone(phone) {
+  const regex = /^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/;
+  return regex.test(phone);
+}
+
+function validURL(myURL) {
+  var pattern = new RegExp(
+    "^(https?:\\/\\/)?" + // protocol
+      "((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.?)+[a-z]{2,}|" + // domain name
+      "((\\d{1,3}\\.){3}\\d{1,3}))" + // ip (v4) address
+      "(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*" + //port
+      "(\\?[;&amp;a-z\\d%_.~+=-]*)?" + // query string
+      "(\\#[-a-z\\d_]*)?$",
+    "i"
+  );
+  return pattern.test(myURL);
+}
 
 module.exports = userController;
