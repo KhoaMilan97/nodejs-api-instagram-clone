@@ -10,5 +10,7 @@ router.get("/post/:id", auth, postController.getSinglePost);
 router.get("/follower-post/:id", auth, postController.followPost);
 router.delete("/post/:id", auth, postController.removePost);
 router.patch("/post/:id", auth, postController.updatePost);
+router.patch("/like/:id", auth, postController.likePost);
+router.patch("/unlike/:id", auth, postController.unLikePost);
 
 module.exports = router;

@@ -50,9 +50,9 @@ const userController = {
           return res.status(400).json({ msg: "This username already exists." });
       }
 
-      if (!validatePhone(phone))
+      if (phone && !validatePhone(phone))
         return res.status(400).json({ msg: "Phone number incorrect format." });
-      if (!validURL(website))
+      if (website && !validURL(website))
         return res
           .status(400)
           .json({ msg: "Website url must be a valid URL." });

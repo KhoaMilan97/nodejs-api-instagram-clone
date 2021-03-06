@@ -13,9 +13,10 @@ const uploadController = {
   changeAvatar: async (req, res) => {
     try {
       const { image, userid } = req.body;
-      const result = await cloudinary.uploader.upload(image, {
+      const result = await cloudinary.v2.uploader.upload(image, {
         public_id: `${Date.now()}`,
         resource_type: "auto",
+        folder: "instagram-clone",
       });
 
       const newAvatar = {
@@ -65,9 +66,10 @@ const uploadController = {
   uploadImages: async (req, res) => {
     try {
       let { image } = req.body;
-      const result = await cloudinary.uploader.upload(image, {
+      const result = await cloudinary.v2.uploader.upload(image, {
         public_id: `${Date.now()}`,
         resource_type: "auto",
+        folder: "instagram-clone",
       });
 
       res.json({

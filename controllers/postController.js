@@ -89,6 +89,42 @@ const postController = {
       return res.status(500).json({ msg: err.message });
     }
   },
+  likePost: async (req, res) => {
+    try {
+      const { id } = req.params;
+      const isLiked = await Posts.findOne({
+        _id: id,
+        likes: req.body.id,
+      });
+      if (isLiked)
+        return res.status(400).json({ msg: "You are already like this post." });
+      const post = await Posts.findByIdAndUpdate(
+        id,
+        {
+          $push: { likes: req.body.id },
+        },
+        { new: true }
+      ).populate("postedBy");
+      res.json(post);
+    } catch (err) {
+      return res.status(500).json({ msg: err.message });
+    }
+  },
+  unLikePost: async (req, res) => {
+    try {
+      const { id } = req.params;
+      const post = await Posts.findByIdAndUpdate(
+        id,
+        {
+          $pull: { likes: req.body.id },
+        },
+        { new: true }
+      ).populate("postedBy");
+      res.json(post);
+    } catch (err) {
+      return res.status(500).json({ msg: err.message });
+    }
+  },
 };
 
 module.exports = postController;
