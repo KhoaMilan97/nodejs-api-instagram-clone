@@ -3,10 +3,14 @@ const { ObjectId } = mongoose.Schema;
 
 const commentSchema = new mongoose.Schema(
   {
-    username: String,
+    user: {
+      type: ObjectId,
+      ref: "Users",
+    },
     content: String,
     post_id: String,
     replay: Array,
+    likes: [{ type: ObjectId, ref: "Users" }],
   },
   { timestamps: true }
 );

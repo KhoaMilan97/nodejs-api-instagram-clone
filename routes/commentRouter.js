@@ -8,5 +8,7 @@ router.get("/comment/:id", auth, commentController.getCommentHomeCard);
 router.get("/comments/:id", commentController.getCommentPost);
 router.get("/comment-count/:id", auth, commentController.getCommentCount);
 router.post("/create-comment", auth, commentController.createComment);
+router.post("/like-comment/:id", auth, commentController.likeComment);
+router.post("/unlike-comment/:id", auth, commentController.unLikeComment);
 
 module.exports = router;
