@@ -19,7 +19,9 @@ const userController = {
   getUser: async (req, res) => {
     try {
       const { username } = req.params;
-      const users = await Users.findOne({ username }).select("-password");
+      const users = await Users.findOne({ username })
+        .populate("followers following", "-password")
+        .select("-password");
 
       res.json(users);
     } catch (err) {

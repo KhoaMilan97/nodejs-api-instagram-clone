@@ -9,7 +9,7 @@ const commentSchema = new mongoose.Schema(
     },
     content: String,
     post_id: String,
-    replay: Array,
+    reply: Array,
     likes: [{ type: ObjectId, ref: "Users" }],
   },
   { timestamps: true }

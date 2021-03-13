@@ -21,6 +21,7 @@ const commentController = {
       const comment = await Comments.find({ post_id: req.params.id })
         .skip((currentPage - 1) * perPage)
         .limit(perPage)
+        .sort("-createdAt")
         .populate("user", "username avatar");
 
       res.json(comment);
@@ -32,11 +33,6 @@ const commentController = {
     let totalCount = await Comments.find({ post_id: req.params.id })
       .countDocuments()
       .exec();
-    if (totalCount > 2) {
-      totalCount = totalCount - 2;
-    } else {
-      totalCount = 0;
-    }
 
     res.json(totalCount);
   },
@@ -82,6 +78,23 @@ const commentController = {
         { new: true }
       );
 
+      res.json(comment);
+    } catch (err) {
+      return res.status(500).json({ msg: err.message });
+    }
+  },
+  replyComment: async (req, res) => {
+    try {
+      // comment_id, user_rep_id, user_comment_id, content
+      const { comment_id, username_comment, user_rep_id, content } = req.body;
+      const comment = await Comments.findOneAndUpdate(
+        {
+          _id: comment_id,
+        },
+        {
+          $push: { reply: { username_comment, content, user_rep_id } },
+        }
+      );
       res.json(comment);
     } catch (err) {
       return res.status(500).json({ msg: err.message });

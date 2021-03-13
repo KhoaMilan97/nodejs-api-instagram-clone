@@ -43,15 +43,18 @@ const postController = {
   followPost: async (req, res) => {
     try {
       const { id } = req.params;
-      const query = await Users.findById(id).select("following");
-      const followers = query["following"];
-      let posts = [];
-      for (let x of followers) {
-        const post = await Posts.find({ postedBy: x })
-          .populate("postedBy")
-          .sort("-createdAt");
-        posts.push(...post);
-      }
+      const { limit, page } = req.query;
+      const perPage = Number(limit) || 6;
+      const currentPage = page || 1;
+
+      const followings = await Users.findById(id).select("following");
+      const followingIds = followings.following;
+      const posts = await Posts.find({ postedBy: { $in: followingIds } })
+        .skip((currentPage - 1) * perPage)
+        .limit(perPage)
+        .populate("postedBy")
+        .sort("-createdAt");
+
       res.json(posts);
     } catch (err) {
       return res.status(500).json({ msg: err.message });
