@@ -22,7 +22,13 @@ const postController = {
   getPost: async (req, res) => {
     try {
       const { userid } = req.params;
+      const { limit, page } = req.query;
+      const perPage = Number(limit) || 6;
+      const currentPage = page || 1;
+
       const post = await Posts.find({ postedBy: userid })
+        .skip((currentPage - 1) * perPage)
+        .limit(perPage)
         .sort("-createdAt")
         .select("_id images");
 
