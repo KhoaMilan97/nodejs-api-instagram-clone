@@ -23,7 +23,7 @@ const postController = {
     try {
       const { userid } = req.params;
       const { limit, page } = req.query;
-      const perPage = Number(limit) || 6;
+      const perPage = Number(limit) || 12;
       const currentPage = page || 1;
 
       const post = await Posts.find({ postedBy: userid })

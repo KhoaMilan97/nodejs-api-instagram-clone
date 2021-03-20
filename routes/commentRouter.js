@@ -12,5 +12,6 @@ router.post("/like-comment/:id", auth, commentController.likeComment);
 router.post("/unlike-comment/:id", auth, commentController.unLikeComment);
 router.post("/reply-comment", auth, commentController.replyComment);
 router.delete("/del-comment/:id", auth, commentController.deleteComment);
+router.patch("/del-reply-comment/:id", auth, commentController.deleteReplyCmt);
 
 module.exports = router;

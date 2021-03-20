@@ -9,5 +9,7 @@ router.get("/user-info/:username", userController.getUser);
 router.put("/user/follow", auth, userController.followUser);
 router.put("/user/unfollow", auth, userController.unfollowUser);
 router.patch("/update-user/:id", auth, userController.updateUser);
+router.patch("/saved/:id", auth, userController.savedPost);
+router.patch("/un-saved/:id", auth, userController.unsavedPost);
 
 module.exports = router;

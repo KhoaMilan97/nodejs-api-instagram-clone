@@ -1,4 +1,5 @@
 const Comments = require("../models/commentModel");
+const ObjectID = require("mongodb").ObjectID;
 
 const commentController = {
   getCommentHomeCard: async (req, res) => {
@@ -105,6 +106,7 @@ const commentController = {
         {
           $push: {
             reply: {
+              _id: new ObjectID(),
               username_comment,
               content,
               user_rep_id,
@@ -115,7 +117,7 @@ const commentController = {
           },
         },
         { new: true }
-      );
+      ).populate("user", "username avatar");
       res.json(comment);
     } catch (err) {
       return res.status(500).json({ msg: err.message });
@@ -126,6 +128,21 @@ const commentController = {
     await Comments.findByIdAndDelete(id);
 
     res.json({ msg: "Delelete comment Success" });
+  },
+  deleteReplyCmt: async (req, res) => {
+    try {
+      const { id } = req.params;
+
+      const comment = await Comments.findOneAndUpdate(
+        { _id: id },
+        { $pull: { reply: { _id: ObjectID(req.body.repid) } } },
+        { new: true }
+      );
+
+      res.json(comment);
+    } catch (err) {
+      return res.status(500).json({ msg: err.message });
+    }
   },
 };
 

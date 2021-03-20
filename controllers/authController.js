@@ -59,7 +59,7 @@ const authController = {
     try {
       const { email, password } = req.body;
       const user = await Users.findOne({ email }).populate(
-        "followers following",
+        "followers following saved",
         "-password"
       );
       if (!user)
@@ -109,7 +109,7 @@ const authController = {
           if (err) return res.status(400).json({ msg: "Token is invalid." });
           const user = await Users.findById(result.id)
             .select("-password")
-            .populate("followers following", "-password");
+            .populate("followers following saved", "-password");
 
           if (!user)
             return res.status(400).json({ msg: "This user doesn't exists." });

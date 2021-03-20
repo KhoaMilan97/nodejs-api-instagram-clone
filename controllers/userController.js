@@ -20,7 +20,7 @@ const userController = {
     try {
       const { username } = req.params;
       const users = await Users.findOne({ username })
-        .populate("followers following", "-password")
+        .populate("followers following saved", "-password")
         .select("-password");
 
       res.json(users);
@@ -157,6 +157,42 @@ const userController = {
         .exec();
 
       res.json({ userFollower, userFollowing });
+    } catch (err) {
+      return res.status(500).json({ msg: err.message });
+    }
+  },
+  savedPost: async (req, res) => {
+    try {
+      const { id } = req.params;
+      const isSaved = await Users.findOne({
+        _id: id,
+        saved: req.body.id,
+      });
+      if (isSaved)
+        return res.status(400).json({ msg: "You are already save this post" });
+      const user = await Users.findByIdAndUpdate(
+        id,
+        {
+          $push: { saved: req.body.id },
+        },
+        { new: true }
+      ).populate("followers following", "-password");
+      res.json(user);
+    } catch (err) {
+      return res.status(500).json({ msg: err.message });
+    }
+  },
+  unsavedPost: async (req, res) => {
+    try {
+      const { id } = req.params;
+      const user = await Users.findByIdAndUpdate(
+        id,
+        {
+          $pull: { saved: req.body.id },
+        },
+        { new: true }
+      ).populate("followers following", "-password");
+      res.json(user);
     } catch (err) {
       return res.status(500).json({ msg: err.message });
     }
