@@ -134,6 +134,12 @@ const postController = {
       return res.status(500).json({ msg: err.message });
     }
   },
+  explorePost: async (req, res) => {
+    try {
+    } catch (err) {
+      return res.status(500).json({ msg: err.message });
+    }
+  },
 };
 
 module.exports = postController;

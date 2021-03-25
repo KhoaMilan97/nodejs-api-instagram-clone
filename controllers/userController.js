@@ -197,6 +197,18 @@ const userController = {
       return res.status(500).json({ msg: err.message });
     }
   },
+  suggestUser: async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { following } = await Users.findById(id);
+      following.push(id);
+
+      const users_list = await Users.find({ _id: { $nin: following } });
+      res.json(users_list);
+    } catch (err) {
+      return res.status(500).json({ msg: err.message });
+    }
+  },
 };
 
 function validatePhone(phone) {
