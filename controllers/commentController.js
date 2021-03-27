@@ -6,7 +6,6 @@ const commentController = {
     try {
       const comment = await Comments.find({ post_id: req.params.id })
         .sort("-createdAt")
-        .limit(2)
         .populate("user", "username avatar");
 
       res.json(comment);
