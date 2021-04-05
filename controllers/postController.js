@@ -12,6 +12,9 @@ const postController = {
   createPost: async (req, res) => {
     try {
       const { title, images, postedBy } = req.body;
+
+      if (images.length < 1)
+        return res.status(401).json({ msg: "Images is required!" });
       const post = await new Posts({ title, images, postedBy }).save();
 
       res.json({ post });
@@ -136,6 +139,18 @@ const postController = {
   },
   explorePost: async (req, res) => {
     try {
+      const { id } = req.params;
+      const { limit, page } = req.query;
+      const perPage = Number(limit) || 12;
+      const currentPage = page || 1;
+
+      const posts = await Posts.find({ postedBy: { $nin: id } })
+        .skip((currentPage - 1) * perPage)
+        .limit(perPage)
+        .populate("postedBy", "-password")
+        .sort("-updatedAt");
+
+      res.json(posts);
     } catch (err) {
       return res.status(500).json({ msg: err.message });
     }

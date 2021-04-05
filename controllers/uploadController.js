@@ -75,6 +75,8 @@ const uploadController = {
       res.json({
         public_id: result.public_id,
         url: result.secure_url,
+        width: result.width,
+        height: result.height,
       });
     } catch (err) {
       return res.status(500).json({ msg: err.message });
