@@ -15,7 +15,8 @@ const postController = {
 
       if (images.length < 1)
         return res.status(401).json({ msg: "Images is required!" });
-      const post = await new Posts({ title, images, postedBy }).save();
+      let post = await new Posts({ title, images, postedBy }).save();
+      post = await post.populate("postedBy", "-password").execPopulate();
 
       res.json({ post });
     } catch (err) {
@@ -75,7 +76,10 @@ const postController = {
       const post = await Posts.findById(id);
       let images = post.images.map((img) => img.public_id);
 
-      await Posts.findByIdAndDelete(id);
+      const result = await Posts.findByIdAndDelete(id).populate(
+        "postedBy",
+        "-password"
+      );
       // for (let image_id of images) {
       //   await cloudinary.uploader.destroy(image_id);
       // }
@@ -84,7 +88,7 @@ const postController = {
         await cloudinary.uploader.destroy(image_id);
       });
 
-      res.json({ msg: "Delete Success" });
+      res.json({ msg: "Delete Success", post: result });
     } catch (err) {
       return res.status(500).json({ msg: err.message });
     }
