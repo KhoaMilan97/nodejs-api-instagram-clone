@@ -1,4 +1,5 @@
 const Users = require("../models/userModel");
+const Posts = require("../models/postModel");
 
 const userController = {
   search: async (req, res) => {
@@ -9,7 +10,7 @@ const userController = {
           { fullname: { $regex: param, $options: "i" } },
           { username: { $regex: param } },
         ],
-      });
+      }).select("-password");
 
       res.json({ users });
     } catch (err) {
@@ -203,8 +204,43 @@ const userController = {
       const { following } = await Users.findById(id);
       following.push(id);
 
-      const users_list = await Users.find({ _id: { $nin: following } });
-      res.json(users_list);
+      const num = req.query.num || 5;
+
+      // const users_list = await Users.find({ _id: { $nin: following } });
+      const users = await Users.aggregate([
+        { $match: { _id: { $nin: following } } },
+        { $sample: { size: num } },
+        {
+          $lookup: {
+            from: "users",
+            localField: "followers",
+            foreignField: "_id",
+            as: "followers",
+          },
+        },
+        {
+          $lookup: {
+            from: "users",
+            localField: "following",
+            foreignField: "_id",
+            as: "following",
+          },
+        },
+      ]).project("-password");
+      res.json({ users, result: users.length });
+    } catch (err) {
+      return res.status(500).json({ msg: err.message });
+    }
+  },
+  getSavedPosts: async (req, res) => {
+    try {
+      const user = await Users.findOne({ username: req.params.username });
+
+      const posts = await Posts.find({ _id: { $in: user.saved } })
+        .populate("postedBy likes", "-password")
+        .sort("-createdAt");
+
+      res.json({ posts, result: posts.length });
     } catch (err) {
       return res.status(500).json({ msg: err.message });
     }

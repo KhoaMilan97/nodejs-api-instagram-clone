@@ -36,12 +36,7 @@ const userSchema = new mongoose.Schema(
     website: String,
     followers: [{ type: ObjectId, ref: "Users" }],
     following: [{ type: ObjectId, ref: "Users" }],
-    saved: [
-      {
-        type: ObjectId,
-        ref: "Posts",
-      },
-    ],
+    saved: [{ type: ObjectId, ref: "Posts" }],
   },
   { timestamps: true }
 );

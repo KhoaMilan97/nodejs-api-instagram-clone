@@ -12,5 +12,6 @@ router.patch("/update-user/:id", auth, userController.updateUser);
 router.patch("/saved/:id", auth, userController.savedPost);
 router.patch("/un-saved/:id", auth, userController.unsavedPost);
 router.get("/suggest-user/:id", auth, userController.suggestUser);
+router.get("/get-saved-post/:username", auth, userController.getSavedPosts);
 
 module.exports = router;

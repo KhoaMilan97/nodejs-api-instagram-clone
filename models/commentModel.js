@@ -8,9 +8,12 @@ const commentSchema = new mongoose.Schema(
       ref: "Users",
     },
     content: String,
-    post_id: String,
-    reply: Array,
+    post_id: ObjectId,
+    reply: ObjectId,
+    tag: Object,
     likes: [{ type: ObjectId, ref: "Users" }],
+    userPostId:  ObjectId,
+    
   },
   { timestamps: true }
 );

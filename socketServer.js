@@ -9,7 +9,72 @@ const socketServer = (socket) => {
     users = users.filter((user) => user.socketId !== socket.id);
   });
 
-  // Likes
+  // Like
+  socket.on("likePost", (newPost) => {
+    const ids = [...newPost.postedBy.followers, newPost.postedBy._id];
+    const clients = users.filter((user) => ids.includes(user.id));
+
+    if (clients.length > 0) {
+      clients.forEach((client) => {
+        socket.to(`${client.socketId}`).emit("likeToClient", newPost);
+      });
+    }
+  });
+
+  socket.on("unLikePost", (newPost) => {
+    const ids = [...newPost.postedBy.followers, newPost.postedBy._id];
+    const clients = users.filter((user) => ids.includes(user.id));
+
+    if (clients.length > 0) {
+      clients.forEach((client) => {
+        socket.to(`${client.socketId}`).emit("unLikeToClient", newPost);
+      });
+    }
+  });
+
+  // comment
+  socket.on("createComment", (newPost) => {
+    const ids = [...newPost.postedBy.followers, newPost.postedBy._id];
+    const clients = users.filter((user) => ids.includes(user.id));
+
+    if (clients.length > 0) {
+      clients.forEach((client) => {
+        socket.to(`${client.socketId}`).emit("createCommentToClient", newPost);
+      });
+    }
+  });
+
+  socket.on("deleteComment", (newPost) => {
+    const ids = [...newPost.postedBy.followers, newPost.postedBy._id];
+    const clients = users.filter((user) => ids.includes(user.id));
+
+    if (clients.length > 0) {
+      clients.forEach((client) => {
+        socket.to(`${client.socketId}`).emit("deleteCommentToClient", newPost);
+      });
+    }
+  });
+
+  // Notifications
+  socket.on("createNotify", (msg) => {
+    const clients = users.filter((user) => msg.recipients.includes(user.id));
+
+    if (clients.length > 0) {
+      clients.forEach((client) => {
+        socket.to(`${client.socketId}`).emit("createNotifyToClient", msg);
+      });
+    }
+  });
+
+  socket.on("removeNotify", (msg) => {
+    const clients = users.filter((user) => msg.recipients.includes(user.id));
+
+    if (clients.length > 0) {
+      clients.forEach((client) => {
+        socket.to(`${client.socketId}`).emit("removeNotifyToClient", msg);
+      });
+    }
+  });
 };
 
 module.exports = socketServer;
