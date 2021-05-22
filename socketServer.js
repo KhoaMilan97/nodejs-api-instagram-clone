@@ -2,10 +2,26 @@ let users = [];
 
 const socketServer = (socket) => {
   // Connect - Disconnect
-  socket.on("joinUser", (id) => {
-    users.push({ id, socketId: socket.id });
+  socket.on("joinUser", (user) => {
+    users.push({
+      id: user._id,
+      socketId: socket.id,
+      followers: user.followers,
+    });
   });
   socket.on("disconnect", () => {
+    const data = users.find((user) => user.socketId === socket.id);
+    if (data) {
+      const clients = users.filter((user) =>
+        data.followers.find((item) => item._id === user.id)
+      );
+      if (clients.length > 0) {
+        clients.forEach((client) => {
+          socket.to(`${client.socketId}`).emit("checkUserOffline", data.id);
+        });
+      }
+    }
+
     users = users.filter((user) => user.socketId !== socket.id);
   });
 
@@ -72,6 +88,32 @@ const socketServer = (socket) => {
     if (clients.length > 0) {
       clients.forEach((client) => {
         socket.to(`${client.socketId}`).emit("removeNotifyToClient", msg);
+      });
+    }
+  });
+
+  // Message/chat
+  socket.on("addMessage", (msg) => {
+    const user = users.find((user) => user.id === msg.recipient);
+    user && socket.to(`${user.socketId}`).emit("addMessageToClient", msg);
+  });
+
+  // check User Online / Offline
+  socket.on("checkUserOnline", (data) => {
+    const following = users.filter((user) =>
+      data.following.find((item) => item._id === user.id)
+    );
+    socket.emit("checkUserOnlineToMe", following);
+
+    const clients = users.filter((user) =>
+      data.followers.find((item) => item._id === user.id)
+    );
+
+    if (clients.length > 0) {
+      clients.forEach((client) => {
+        socket
+          .to(`${client.socketId}`)
+          .emit("checkUserOnlineToClient", data._id);
       });
     }
   });

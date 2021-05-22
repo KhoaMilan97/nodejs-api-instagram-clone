@@ -48,7 +48,7 @@ const messageController = {
 
       await newMessage.save();
 
-      res.json({ newConversation });
+      res.json({ newConversation, newMessage });
     } catch (err) {
       return res.status(500).json({ msg: err.message });
     }
@@ -86,6 +86,33 @@ const messageController = {
       const messages = await features.query.sort("-createdAt");
 
       res.json({ messages, result: messages.length });
+    } catch (err) {
+      return res.status(500).json({ msg: err.message });
+    }
+  },
+  deleteMessages: async (req, res) => {
+    try {
+      await Messages.findOneAndDelete({
+        _id: req.params.id,
+        sender: req.user.id,
+      });
+
+      res.json({ msg: "Delete Success!" });
+    } catch (err) {
+      return res.status(500).json({ msg: err.message });
+    }
+  },
+  deleteConservation: async (req, res) => {
+    try {
+      const newConve = await Conversations.findOneAndDelete({
+        $or: [
+          { recipients: [req.user.id, req.params.id] },
+          { recipients: [req.params.id, req.user.id] },
+        ],
+      });
+      await Messages.deleteMany({ conversation: newConve._id });
+
+      res.json({ msg: "Delete Success!" });
     } catch (err) {
       return res.status(500).json({ msg: err.message });
     }
