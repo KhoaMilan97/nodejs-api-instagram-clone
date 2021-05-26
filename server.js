@@ -5,11 +5,14 @@ const mongoose = require("mongoose");
 const cookieParser = require("cookie-parser");
 const fs = require("fs");
 const socketServer = require("./socketServer");
+const { PeerServer } = require("peer");
 
 const app = express();
 app.use(express.json({ limit: "2mb" }));
 app.use(cors());
 app.use(cookieParser());
+
+const peerServer = PeerServer({ port: 3001, path: "/" });
 
 // socket
 const http = require("http").createServer(app);
