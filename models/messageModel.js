@@ -8,6 +8,7 @@ const messageSchema = new mongoose.Schema(
     recipient: { type: ObjectId, ref: "Users" },
     text: String,
     media: Array,
+    call: Object,
   },
   {
     timestamps: true,

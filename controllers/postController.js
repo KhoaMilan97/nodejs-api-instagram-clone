@@ -120,6 +120,12 @@ const postController = {
       const { images, title } = req.body;
       const { id } = req.params;
 
+      const oldPost = await Posts.findById(id);
+      const oldImage = oldPost.images.map((item) => item.public_id);
+      const newImage = images.map((item) => item.public_id);
+
+      const oldImageDelete = oldImage.filter((e) => !newImage.includes(e));
+
       const post = await Posts.findByIdAndUpdate(
         id,
         {
@@ -136,6 +142,10 @@ const postController = {
             select: "-password",
           },
         });
+
+      oldImageDelete.forEach(async (image_id) => {
+        await cloudinary.uploader.destroy(image_id);
+      });
 
       res.json(post);
     } catch (err) {

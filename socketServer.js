@@ -29,6 +29,14 @@ const socketServer = (socket) => {
       }
     }
 
+    if (data?.call) {
+      const callUser = users.find((user) => user.id === data.call);
+      if (callUser) {
+        users = editData(users, callUser.id, null);
+        socket.to(`${callUser.socketId}`).emit("callerDisconnect");
+      }
+    }
+
     users = users.filter((user) => user.socketId !== socket.id);
   });
 
@@ -80,23 +88,13 @@ const socketServer = (socket) => {
 
   // Notifications
   socket.on("createNotify", (msg) => {
-    const clients = users.filter((user) => msg.recipients.includes(user.id));
-
-    if (clients.length > 0) {
-      clients.forEach((client) => {
-        socket.to(`${client.socketId}`).emit("createNotifyToClient", msg);
-      });
-    }
+    const client = users.find((user) => msg.recipients.includes(user.id));
+    client && socket.to(`${client.socketId}`).emit("createNotifyToClient", msg);
   });
 
   socket.on("removeNotify", (msg) => {
-    const clients = users.filter((user) => msg.recipients.includes(user.id));
-
-    if (clients.length > 0) {
-      clients.forEach((client) => {
-        socket.to(`${client.socketId}`).emit("removeNotifyToClient", msg);
-      });
-    }
+    const client = users.filter((user) => msg.recipients.includes(user.id));
+    client && socket.to(`${client.socketId}`).emit("removeNotifyToClient", msg);
   });
 
   // Message/chat

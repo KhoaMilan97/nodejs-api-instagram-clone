@@ -1,5 +1,12 @@
 const Conversations = require("../models/conversationModel");
 const Messages = require("../models/messageModel");
+const cloudinary = require("cloudinary");
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 class APIfeatures {
   constructor(query, queryString) {
@@ -19,31 +26,33 @@ class APIfeatures {
 const messageController = {
   createMessage: async (req, res) => {
     try {
-      const { recipient, text, media } = req.body;
+      const { sender, recipient, text, media, call } = req.body;
 
-      if (!recipient || (!text.trim() && media.length === 0)) return;
+      if (!recipient || (!text.trim() && media.length === 0 && !call)) return;
 
       const newConversation = await Conversations.findOneAndUpdate(
         {
           $or: [
-            { recipients: [req.user.id, recipient] },
-            { recipients: [recipient, req.user.id] },
+            { recipients: [sender, recipient] },
+            { recipients: [recipient, sender] },
           ],
         },
         {
-          recipients: [req.user.id, recipient],
+          recipients: [sender, recipient],
           text,
           media,
+          call,
         },
         { new: true, upsert: true }
       );
 
       const newMessage = new Messages({
         conversation: newConversation,
-        sender: req.user.id,
+        sender,
         recipient,
         text,
         media,
+        call,
       });
 
       await newMessage.save();
@@ -92,6 +101,17 @@ const messageController = {
   },
   deleteMessages: async (req, res) => {
     try {
+      const message = await Messages.findOne({
+        _id: req.params.id,
+        sender: req.user.id,
+      });
+
+      if (message.media.length > 0) {
+        message.media.forEach(async (item) => {
+          await cloudinary.uploader.destroy(item.public_id);
+        });
+      }
+
       await Messages.findOneAndDelete({
         _id: req.params.id,
         sender: req.user.id,
