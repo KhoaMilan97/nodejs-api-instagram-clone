@@ -6,6 +6,7 @@ const cookieParser = require("cookie-parser");
 const fs = require("fs");
 const socketServer = require("./socketServer");
 const { ExpressPeerServer } = require("peer");
+const { createProxyMiddleware } = require("http-proxy-middleware");
 
 const app = express();
 app.use(express.json({ limit: "2mb" }));
@@ -23,7 +24,13 @@ ExpressPeerServer(http, { path: "/" });
 
 //route
 fs.readdirSync("./routes").map((route) =>
-  app.use("/api", require(`./routes/${route}`))
+  app.use(
+    "/api",
+    createProxyMiddleware({
+      target: require(`./routes/${route}`),
+      changeOrigin: true,
+    })
+  )
 );
 
 //connect to mongodb
