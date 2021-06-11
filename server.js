@@ -9,7 +9,7 @@ const { ExpressPeerServer } = require("peer");
 
 const app = express();
 app.use(express.json({ limit: "2mb" }));
-app.use(cors());
+app.use(cors({ origin: process.env.FRONTEND_URL, credentials: true }));
 app.use(cookieParser());
 
 // socket
